@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homex | Comparativo de Fechaduras Philips</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: #005a9e;
+        }
+        .lock-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .lock-option {
+            background-color: #e9ecef;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.2s, color 0.2s;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .lock-option.selected {
+            background-color: #c82333;
+            color: white;
+            border-color: #a51c2a;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        #comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #comparison-table th, #comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            min-width: 150px;
+            font-size: 0.75em;
+        }
+        #comparison-table thead th {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background-color: #005a9e;
+            color: white;
+            font-size: 0.8em;
+        }
+        #comparison-table th:first-child,
+        #comparison-table td:first-child {
+            position: -webkit-sticky;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+        .feature-column {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Comparativo de Fechaduras Digitais Philips</h1>
+
+        <div id="selector-container">
+            <div class="lock-selector">
+                <div class="lock-option" data-lock-key="709">709</div>
+                <div class="lock-option" data-lock-key="9300">9300</div>
+                <div class="lock-option" data-lock-key="ALPHA">ALPHA</div>
+                <div class="lock-option" data-lock-key="ALPHA VP">ALPHA VP</div>
+                <div class="lock-option" data-lock-key="303">303</div>
+                <div class="lock-option" data-lock-key="801">801</div>
+                <div class="lock-option" data-lock-key="610">610</div>
+                <div class="lock-option" data-lock-key="608">608</div>
+                <div class="lock-option" data-lock-key="5100">5100</div>
+                <div class="lock-option" data-lock-key="210">210</div>
+                <div class="lock-option" data-lock-key="101">101</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div id="comparison-result">
+                </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const lockData = {
+            "709": { "Modelo": "DDL709-FVP-7HWS", "Aplicativo": "PHILIPS EASY KEY PLUS", "Conexão": "WI-FI", "Vídeo Porteiro": "SIM (Câmera 2.0MP, Tela 4\")", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "SIM (50)", "Detecção Automática de Pessoas": "SIM", "Biometria Digital": "SIM (99)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "BATERIA DE LITHIUM (5000MAH)", "Autonomia Media": "3 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Peso com Embalagem (Kg)": "5.4", "Embalagem (A x L x P) cm": "50 x 24 x 16", "Garantia": "2 ANOS" },
+            "9300": { "Modelo": "9300-5HBGS", "Aplicativo": "PHILIPS EASY KEY", "Conexão": "BLUETOOTH / WI-FI (com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "-", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (10)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "4 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB 5V", "Espessura da Porta": "38-60mm (60-120mm com kit)", "Proteção IP65": "-", "Acabamento": "Vidro Temperado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "6.0", "Embalagem (A x L x P) cm": "15 x 24 x 48" },
+            "ALPHA": { "Modelo": "ALPHA-5HB", "Aplicativo": "PHILIPS EASY KEY", "Conexão": "BLUETOOTH (WI-FI opcional com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "-", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "TOKEN", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão Push Pull", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "4 A 8 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB-5V", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5,3", "Embalagem (A x L x P) cm": "34 x 13 x 49" },
+            "ALPHA VP": { "Modelo": "ALPHA-VP-SHWS", "Aplicativo": "PHILIPS EASY KEY PLUS", "Conexão": "WI-FI", "Vídeo Porteiro": "SIM (Câmera 2MP, Tela 4\")", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "SIM", "Biometria Digital": "SIM (99)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "BATERIA DE LITHIUM (5000MAH)", "Autonomia Media": "3 MESES", "Fonte Emergencial": "USB-C-5V", "Espessura da Porta": "38-50mm (50-90mm com kit)", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5.5", "Embalagem (A x L x P) cm": "17 x 24,5 x 50" },
+            "303": { "Modelo": "DDL303-VP-SHWS", "Aplicativo": "SMART LIFE OU TUYA", "Conexão": "WI-FI", "Vídeo Porteiro": "SIM (Câmera 1,2MP, Tela 3,5\")", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (100)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão Push Pull", "Modo Passagem Livre": "-", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Mecânico - Classe C", "Idiomas": "Ing/Chi/Esp/Arabe", "Alimentação": "BATERIA DE LITHIUM (4000MAH)", "Autonomia Media": "3 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5.8", "Embalagem (A x L x P) cm": "50 x 24.5 x 16,5" },
+            "801": { "Modelo": "801-5HBS(E)", "Aplicativo": "PHILIPS HOME ACCESS", "Conexão": "BLUETOOTH / WI-FI (com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Maçaneta", "Modo Passagem Livre": "NÃO", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês, Português", "Alimentação": "8 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB-5V", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Vidro Temperado/Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5,3", "Embalagem (A x L x P) cm": "50 x 25 x 17" },
+            "610": { "Modelo": "610-5HBS(E)", "Aplicativo": "PHILIPS HOME ACCESS", "Conexão": "BLUETOOTH / WI-FI (com Gateway) ALEXA", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "TOKEN", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "NÃO", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Manual - Classe C", "Idiomas": "Inglês/Chinês, Português", "Alimentação": "8 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB 5V", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Vidro Temperado/Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5,0", "Embalagem (A x L x P) cm": "17 x 27 x 48" },
+            "608": { "Modelo": "DDL608-5HWS", "Aplicativo": "SMART LIFE OU TUYA", "Conexão": "WI-FI", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "-", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (100)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "TOKEN", "Verificação Dupla": "SIM", "Acionamento Interno": "Maçaneta", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Mecânico - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "4 PILHAS AAA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "35-60mm", "Proteção IP65": "SIM", "Acabamento": "Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "2.348", "Embalagem (A x L x P) cm": "42,2 x 30 x 6.5" },
+            "5100": { "Modelo": "5100-6HBS", "Aplicativo": "PHILIPS EASY KEY", "Conexão": "BLUETOOTH (WI-FI opcional com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (10)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "NÃO", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão", "Modo Passagem Livre": "-", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Fechadura de Sobrepor", "Idiomas": "Inglês/Chinês", "Alimentação": "4 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB 5V", "Espessura da Porta": "30-50mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "1,9", "Embalagem (A x L x P) cm": "9,5 X 24 X 27" },
+            "210": { "Modelo": "DDL210S-13H", "Aplicativo": "PHILIPS", "Conexão": "-", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (50)", "Cartão TAG": "NÃO", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "-", "Chave Mecânica": "NÃO", "Abertura via APP": "-", "Verificação Dupla": "-", "Acionamento Interno": "Botão", "Modo Passagem Livre": "-", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Deadbolt (Padrão EUA)", "Idiomas": "Inglês/Francês/Espanhol", "Alimentação": "4 PILHAS AA", "Autonomia Media": "12 MESES", "Fonte Emergencial": "USB-C 5V", "Espessura da Porta": "35-50mm", "Proteção IP65": "-", "Acabamento": "Brilhante", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "1,27", "Embalagem (A x L x P) cm": "21 x 6 x 9" },
+            "101": { "Modelo": "DDL101-3HBS", "Aplicativo": "SMART LIFE OU TUYA", "Conexão": "BLUETOOTH", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (44)", "Cartão TAG": "NÃO", "PIN (senhas)": "NÃO", "PIN Oculto": "-", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Maçaneta", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "-", "Travamento Automático": "SIM", "Maquinário": "Mecânico - Classe A", "Idiomas": "-", "Alimentação": "4 PILHAS AAA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "35-60mm", "Proteção IP65": "-", "Acabamento": "Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "1,952", "Embalagem (A x L x P) cm": "29.5 x 20.5 x 10.5" }
+        };
+
+        const featuresToCompare = {
+            "Modelo": "Modelo", "Aplicativo": "Aplicativo (App)", "Conexão": "Conexão", "Vídeo Porteiro": "Função Vídeo Porteiro", "Notificação de Visitante": "Notificação de Visitante", "Campainha": "Campainha Integrada", "Idiomas": "Idiomas do Guia de Voz", "Biometria Facial": "Biometria Facial (Capacidade)", "Detecção Automática de Pessoas": "Detecção Automática de Pessoas", "Biometria Digital": "Biometria Digital (Capacidade)", "Cartão TAG": "Cartão TAG (Capacidade)", "PIN (senhas)": "PIN / Senhas (Capacidade)", "PIN Oculto": "PIN Oculto (Senha Falsa)", "PIN Único": "PIN de Uso Único", "PIN Recorrente": "PIN Recorrente (Agendado)", "Chave Mecânica": "Chave Mecânica (Contingência)", "Abertura via APP": "Abertura Remota via App", "Verificação Dupla": "Verificação Dupla (2 Fatores)", "Acionamento Interno": "Abertura Interna - Acionamento", "Modo Passagem Livre": "Modo Passagem Livre", "Função Não Perturbe": "Função Não Perturbe", "Travamento Automático": "Travamento Automático", "Maquinário": "Maquinário (Mortise)", "Alimentação": "Alimentação Principal", "Autonomia Media": "Autonomia Média", "Fonte Emergencial": "Fonte de Emergência", "Espessura da Porta": "Espessura da Porta (mm)", "Proteção IP65": "Proteção IP65 (Água/Pó)", "Acabamento": "Acabamento", "Peso com Embalagem (Kg)": "Peso com Embalagem (Kg)", "Embalagem (A x L x P) cm": "Embalagem (A x L x P) cm", "Garantia": "Garantia"
+        };
+        
+        const lockOptions = document.querySelectorAll('.lock-option');
+        const resultContainer = document.getElementById('comparison-result');
+
+        function updateTable() {
+            const selectedLocks = Array.from(document.querySelectorAll('.lock-option.selected')).map(el => el.dataset.lockKey);
+
+            if (selectedLocks.length === 0) {
+                resultContainer.innerHTML = '';
+                return;
+            }
+
+            let tableHTML = '<table id="comparison-table"><thead><tr><th>Característica</th>';
+            selectedLocks.forEach(key => {
+                tableHTML += `<th>${key}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+
+            Object.keys(featuresToCompare).forEach(featureKey => {
+                tableHTML += `<tr><td class="feature-column">${featuresToCompare[featureKey]}</td>`;
+                selectedLocks.forEach(lockKey => {
+                    const value = lockData[lockKey][featureKey] || '-';
+                    tableHTML += `<td>${value}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+
+            tableHTML += '</tbody></table>';
+            resultContainer.innerHTML = tableHTML;
+        }
+
+        lockOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                this.classList.toggle('selected');
+                updateTable();
+            });
+        });
+
+    });
+    </script>
+
+</body>
+</html>
