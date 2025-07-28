@@ -3,183 +3,555 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homex | Comparativo de Fechaduras Philips</title>
+    <title>Homex | Comparativo Imersivo de Fechaduras Philips com IA</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- AOS (Animate On Scroll) Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Marked.js for rendering Markdown from Gemini -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
+        /* =================================================================
+         * ESTILOS GERAIS E VARIAVEIS
+         * ================================================================= */
+        :root {
+            --primary-glow: #0ea5e9;
+            --secondary-glow: #a855f7;
+            --background-start: #111827;
+            --background-end: #1e293b;
+            --glass-background: rgba(30, 41, 59, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-highlight: #ffffff;
+            --button-dark-bg: #18181b;
+            --button-active-bg: rgba(14, 165, 233, 0.2);
+            --error-color: #f43f5e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f7f9;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--background-start), var(--background-end));
+            background-attachment: fixed;
+            color: var(--text-primary);
+            padding: 2rem;
+            overflow-x: hidden;
         }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
-        }
+
+        /* --- Layout Principal --- */
+        .container { max-width: 1400px; margin: auto; display: flex; flex-direction: column; gap: 2rem; }
+        .header { text-align: center; }
         h1 {
-            text-align: center;
-            color: #005a9e;
+            font-weight: 900;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            letter-spacing: -2px;
+            background: linear-gradient(90deg, var(--text-highlight), #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
         }
-        .lock-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+        .subtitle { font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+        #selector-container {
+            background: var(--glass-background);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
+
+        /* --- Layout de Selecao de Modelos --- */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
         .lock-option {
-            background-color: #e9ecef;
-            color: #333;
-            padding: 8px 15px;
-            border-radius: 5px;
+            background-color: var(--button-dark-bg);
+            color: var(--text-highlight);
+            padding: 0.75rem 1.5rem;
             cursor: pointer;
-            border: 1px solid #ddd;
-            font-weight: bold;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            font-weight: 700;
             text-align: center;
-            transition: background-color 0.2s, color 0.2s;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             user-select: none;
         }
-        .lock-option.selected {
-            background-color: #c82333;
-            color: white;
-            border-color: #a51c2a;
+        
+        .lock-option:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 0 20px rgba(var(--primary-glow), 0.3); 
+            border-color: rgba(var(--primary-glow), 0.5); 
         }
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-            margin-top: 20px;
+        .lock-option.selected { 
+            background-color: var(--primary-glow); 
+            border-color: var(--primary-glow); 
+            box-shadow: 0 0 25px rgba(var(--primary-glow), 0.6); 
+            transform: translateY(-2px) scale(1.02); 
         }
-        #comparison-table {
-            width: 100%;
-            border-collapse: collapse;
+        
+        /* --- Container de Acoes (Botoes de Visao e IA) --- */
+        .actions-container {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        #comparison-table th, #comparison-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            min-width: 150px;
-            font-size: 0.75em;
+
+        .toggle-btn {
+            background: var(--glass-background);
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        #comparison-table thead th {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-            background-color: #005a9e;
-            color: white;
-            font-size: 0.8em;
+
+        .toggle-btn:hover {
+            color: var(--text-highlight);
+            border-color: var(--primary-glow);
         }
-        #comparison-table th:first-child,
-        #comparison-table td:first-child {
-            position: -webkit-sticky;
-            position: sticky;
-            left: 0;
-            z-index: 1;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+
+        .toggle-btn.active {
+            background: var(--button-active-bg);
+            color: var(--text-highlight);
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(var(--primary-glow), 0.3);
         }
-        .feature-column {
+
+        .gemini-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .gemini-btn {
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow));
+            color: var(--text-highlight);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gemini-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(var(--primary-glow), 0.4); }
+        .gemini-btn:disabled { cursor: not-allowed; background: #374151; opacity: 0.7; }
+        .gemini-btn .sparkle { margin-right: 8px; filter: saturate(1.5); }
+
+        /* --- Tabela e Modal --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(10, 10, 20, 0.8); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--glass-background); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .close-btn { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; color: var(--text-secondary); font-size: 2rem; cursor: pointer; transition: color 0.2s ease; }
+        .close-btn:hover { color: var(--text-highlight); }
+        .table-container { width: 100%; overflow-x: auto; border-radius: 16px; }
+        #comparison-table { width: 100%; border-collapse: collapse; background: var(--glass-background); backdrop-filter: blur(20px); }
+        #comparison-table th, #comparison-table td { border-bottom: 1px solid var(--glass-border); padding: 1.25rem 1rem; text-align: left; min-width: 200px; font-size: 0.76rem; vertical-align: middle; transition: background-color 0.3s ease; }
+        #comparison-table tr:hover td { background-color: rgba(255, 255, 255, 0.03); }
+        #comparison-table thead th { position: sticky; top: 0; z-index: 2; background-color: rgba(14, 165, 233, 0.2); color: var(--text-highlight); font-size: 1.1rem; font-weight: 700; border-bottom: 2px solid var(--primary-glow); backdrop-filter: blur(10px); }
+        #comparison-table th:first-child, #comparison-table td:first-child { position: sticky; left: 0; z-index: 1; background: linear-gradient(to right, var(--background-end), var(--background-start)); border-right: 1px solid var(--glass-border); }
+        .feature-column { font-weight: 700; min-width: 280px; color: var(--text-primary); }
+        .category-header { font-weight: 900; font-size: 1rem; color: var(--primary-glow); background-color: rgba(14, 165, 233, 0.1) !important; }
+        .loader { border: 4px solid var(--glass-border); border-top: 4px solid var(--primary-glow); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 2rem auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .error-message { color: var(--error-color); background-color: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 8px; padding: 1rem; text-align: center; }
+
+        .icon-check {
+            color: #22c55e; /* green-500 */
+            font-weight: 900;
+            font-size: 1.6em;
+        }
+
+        .icon-cross {
+            color: #ef4444; /* red-500 */
+            font-weight: 900;
+            font-size: 1.2em;
+        }
+        
+        .product-link {
+            color: var(--primary-glow);
+            text-decoration: underline;
             font-weight: bold;
-            background-color: #f8f9fa;
-            min-width: 200px;
+        }
+        .product-link:hover {
+            color: var(--text-highlight);
+        }
+
+        /* --- Adaptacao Mobile --- */
+        @media (max-width: 900px) {
+            .actions-container { flex-direction: column; align-items: stretch; text-align: center; }
+            .gemini-actions { justify-content: center; }
+            #comparison-table thead { display: none; }
+            #comparison-table th:first-child, #comparison-table td:first-child { position: static; background: none; border-right: none; }
+            #comparison-table tr { display: block; border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
+            #comparison-table tr.category-row { display: none; }
+            #comparison-table td { display: flex; justify-content: space-between; text-align: right; padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--glass-border); min-width: 0; }
+            #comparison-table tr td:last-child { border-bottom: none; }
+            #comparison-table td:first-child { display: block; text-align: center; font-size: 1.1rem; font-weight: 900; color: var(--primary-glow); padding-bottom: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--primary-glow); }
+            #comparison-table td:not(:first-child)::before { content: attr(data-label); font-weight: 500; text-align: left; color: var(--text-secondary); margin-right: 1rem; }
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>Comparativo de Fechaduras Digitais Philips</h1>
-
-        <div id="selector-container">
-            <div class="lock-selector">
-                <div class="lock-option" data-lock-key="709">709</div>
-                <div class="lock-option" data-lock-key="9300">9300</div>
-                <div class="lock-option" data-lock-key="ALPHA">ALPHA</div>
-                <div class="lock-option" data-lock-key="ALPHA VP">ALPHA VP</div>
-                <div class="lock-option" data-lock-key="303">303</div>
-                <div class="lock-option" data-lock-key="801">801</div>
-                <div class="lock-option" data-lock-key="610">610</div>
-                <div class="lock-option" data-lock-key="608">608</div>
-                <div class="lock-option" data-lock-key="5100">5100</div>
-                <div class="lock-option" data-lock-key="210">210</div>
-                <div class="lock-option" data-lock-key="101">101</div>
+        <header class="header" data-aos="fade-up">
+            <h1>Comparativo Philips</h1>
+            <p class="subtitle">Selecione até 3 modelos para comparar.</p>
+        </header>
+        
+        <div id="selector-container" data-aos="fade-up" data-aos-delay="200">
+            <div class="model-selection-area">
+                <div class="button-group">
+                    <div class="lock-option" data-lock-key="101">101</div>
+                    <div class="lock-option" data-lock-key="210">210</div>
+                    <div class="lock-option" data-lock-key="303">303</div>
+                    <div class="lock-option" data-lock-key="5100">5100</div>
+                    <div class="lock-option" data-lock-key="608">608</div>
+                    <div class="lock-option" data-lock-key="610">610</div>
+                    <div class="lock-option" data-lock-key="709">709</div>
+                    <div class="lock-option" data-lock-key="801">801</div>
+                    <div class="lock-option" data-lock-key="9300">9300</div>
+                    <div class="lock-option" data-lock-key="ALPHA">Alpha</div>
+                    <div class="lock-option" data-lock-key="ALPHA VP">Alpha.VP</div>
+                </div>
+            </div>
+            
+            <div class="actions-container">
+                <div class="view-toggle-buttons">
+                    <button id="btn-completo" class="toggle-btn">Comparativo Completo</button>
+                    <button id="btn-simplificado" class="toggle-btn active">Comparativo Resumido</button>
+                </div>
+                <div class="gemini-actions">
+                    <a href="https://notebooklm.google.com/notebook/64c363a7-dbaa-4d10-8517-f85ea9e9062c" target="_blank" rel="noopener noreferrer" class="gemini-btn">
+                        <span class="sparkle">💡</span> Suporte e Atendimento Técnico com I.A.
+                    </a>
+                    <button id="installation-suggestion-btn" class="gemini-btn" style="display: none;">
+                        <span class="sparkle">✨</span> Sugerir Instalação
+                    </button>
+                    <button id="generate-summary-btn" class="gemini-btn" style="display: none;">
+                        <span class="sparkle">✨</span> Gerar Resumo Comparativo
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="table-container">
+        <div class="table-container" data-aos="fade-up" data-aos-delay="400">
             <div id="comparison-result">
-                </div>
+                <!-- A tabela sera gerada pelo JavaScript aqui -->
+            </div>
         </div>
     </div>
 
+    <!-- Modal de Resumo -->
+    <div id="summary-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="summary-modal">&times;</button>
+            <h2>Análise Comparativa Inteligente</h2>
+            <div id="gemini-summary-result"></div>
+        </div>
+    </div>
+    
+    <!-- Modal de Instalação -->
+    <div id="installation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="installation-modal">&times;</button>
+            <h2>Assistente de Instalação IA</h2>
+            <div id="gemini-installation-result"></div>
+        </div>
+    </div>
+
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, easing: 'ease-out-cubic' });
+    </script>
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-
+        // --- Dados das Fechaduras ---
         const lockData = {
-            "709": { "Modelo": "DDL709-FVP-7HWS", "Aplicativo": "PHILIPS EASY KEY PLUS", "Conexão": "WI-FI", "Vídeo Porteiro": "SIM (Câmera 2.0MP, Tela 4\")", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "SIM (50)", "Detecção Automática de Pessoas": "SIM", "Biometria Digital": "SIM (99)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "BATERIA DE LITHIUM (5000MAH)", "Autonomia Media": "3 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Peso com Embalagem (Kg)": "5.4", "Embalagem (A x L x P) cm": "50 x 24 x 16", "Garantia": "2 ANOS" },
-            "9300": { "Modelo": "9300-5HBGS", "Aplicativo": "PHILIPS EASY KEY", "Conexão": "BLUETOOTH / WI-FI (com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "-", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (10)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "4 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB 5V", "Espessura da Porta": "38-60mm (60-120mm com kit)", "Proteção IP65": "-", "Acabamento": "Vidro Temperado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "6.0", "Embalagem (A x L x P) cm": "15 x 24 x 48" },
-            "ALPHA": { "Modelo": "ALPHA-5HB", "Aplicativo": "PHILIPS EASY KEY", "Conexão": "BLUETOOTH (WI-FI opcional com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "-", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "TOKEN", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão Push Pull", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "4 A 8 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB-5V", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5,3", "Embalagem (A x L x P) cm": "34 x 13 x 49" },
-            "ALPHA VP": { "Modelo": "ALPHA-VP-SHWS", "Aplicativo": "PHILIPS EASY KEY PLUS", "Conexão": "WI-FI", "Vídeo Porteiro": "SIM (Câmera 2MP, Tela 4\")", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "SIM", "Biometria Digital": "SIM (99)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "BATERIA DE LITHIUM (5000MAH)", "Autonomia Media": "3 MESES", "Fonte Emergencial": "USB-C-5V", "Espessura da Porta": "38-50mm (50-90mm com kit)", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5.5", "Embalagem (A x L x P) cm": "17 x 24,5 x 50" },
-            "303": { "Modelo": "DDL303-VP-SHWS", "Aplicativo": "SMART LIFE OU TUYA", "Conexão": "WI-FI", "Vídeo Porteiro": "SIM (Câmera 1,2MP, Tela 3,5\")", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (100)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão Push Pull", "Modo Passagem Livre": "-", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Mecânico - Classe C", "Idiomas": "Ing/Chi/Esp/Arabe", "Alimentação": "BATERIA DE LITHIUM (4000MAH)", "Autonomia Media": "3 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5.8", "Embalagem (A x L x P) cm": "50 x 24.5 x 16,5" },
-            "801": { "Modelo": "801-5HBS(E)", "Aplicativo": "PHILIPS HOME ACCESS", "Conexão": "BLUETOOTH / WI-FI (com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Maçaneta", "Modo Passagem Livre": "NÃO", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Automático - Classe C", "Idiomas": "Inglês/Chinês, Português", "Alimentação": "8 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB-5V", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Vidro Temperado/Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5,3", "Embalagem (A x L x P) cm": "50 x 25 x 17" },
-            "610": { "Modelo": "610-5HBS(E)", "Aplicativo": "PHILIPS HOME ACCESS", "Conexão": "BLUETOOTH / WI-FI (com Gateway) ALEXA", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "SIM", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "SIM", "Abertura via APP": "TOKEN", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão / Alça de Indução", "Modo Passagem Livre": "NÃO", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Manual - Classe C", "Idiomas": "Inglês/Chinês, Português", "Alimentação": "8 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB 5V", "Espessura da Porta": "38-60mm", "Proteção IP65": "-", "Acabamento": "Vidro Temperado/Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "5,0", "Embalagem (A x L x P) cm": "17 x 27 x 48" },
-            "608": { "Modelo": "DDL608-5HWS", "Aplicativo": "SMART LIFE OU TUYA", "Conexão": "WI-FI", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "-", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (100)", "PIN Oculto": "SIM", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "TOKEN", "Verificação Dupla": "SIM", "Acionamento Interno": "Maçaneta", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Mecânico - Classe C", "Idiomas": "Inglês/Chinês", "Alimentação": "4 PILHAS AAA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "35-60mm", "Proteção IP65": "SIM", "Acabamento": "Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "2.348", "Embalagem (A x L x P) cm": "42,2 x 30 x 6.5" },
-            "5100": { "Modelo": "5100-6HBS", "Aplicativo": "PHILIPS EASY KEY", "Conexão": "BLUETOOTH (WI-FI opcional com Gateway)", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (100)", "Cartão TAG": "SIM (100)", "PIN (senhas)": "SIM (10)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "SIM", "Chave Mecânica": "NÃO", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Botão", "Modo Passagem Livre": "-", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Fechadura de Sobrepor", "Idiomas": "Inglês/Chinês", "Alimentação": "4 PILHAS AA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "MICRO USB 5V", "Espessura da Porta": "30-50mm", "Proteção IP65": "-", "Acabamento": "Escovado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "1,9", "Embalagem (A x L x P) cm": "9,5 X 24 X 27" },
-            "210": { "Modelo": "DDL210S-13H", "Aplicativo": "PHILIPS", "Conexão": "-", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (50)", "Cartão TAG": "NÃO", "PIN (senhas)": "SIM (20)", "PIN Oculto": "SIM", "PIN Único": "SIM", "PIN Recorrente": "-", "Chave Mecânica": "NÃO", "Abertura via APP": "-", "Verificação Dupla": "-", "Acionamento Interno": "Botão", "Modo Passagem Livre": "-", "Função Não Perturbe": "SIM", "Travamento Automático": "SIM", "Maquinário": "Deadbolt (Padrão EUA)", "Idiomas": "Inglês/Francês/Espanhol", "Alimentação": "4 PILHAS AA", "Autonomia Media": "12 MESES", "Fonte Emergencial": "USB-C 5V", "Espessura da Porta": "35-50mm", "Proteção IP65": "-", "Acabamento": "Brilhante", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "1,27", "Embalagem (A x L x P) cm": "21 x 6 x 9" },
-            "101": { "Modelo": "DDL101-3HBS", "Aplicativo": "SMART LIFE OU TUYA", "Conexão": "BLUETOOTH", "Vídeo Porteiro": "NÃO", "Notificação de Visitante": "-", "Campainha": "SIM", "Biometria Facial": "-", "Detecção Automática de Pessoas": "-", "Biometria Digital": "SIM (44)", "Cartão TAG": "NÃO", "PIN (senhas)": "NÃO", "PIN Oculto": "-", "PIN Único": "-", "PIN Recorrente": "-", "Chave Mecânica": "SIM", "Abertura via APP": "SIM", "Verificação Dupla": "SIM", "Acionamento Interno": "Maçaneta", "Modo Passagem Livre": "SIM", "Função Não Perturbe": "-", "Travamento Automático": "SIM", "Maquinário": "Mecânico - Classe A", "Idiomas": "-", "Alimentação": "4 PILHAS AAA", "Autonomia Media": "10 MESES", "Fonte Emergencial": "USB-C", "Espessura da Porta": "35-60mm", "Proteção IP65": "-", "Acabamento": "Pintado", "Garantia": "2 ANOS", "Peso com Embalagem (Kg)": "1,952", "Embalagem (A x L x P) cm": "29.5 x 20.5 x 10.5" }
+            "709": { "Modelo": "DDL709-FVP-7HWS", "Link": "https://homexbr.com.br/philips-easykey-709/", "EAN": "6.971.318.504.501", "Fornecedor": "PHILIPS EASY KEY PLUS", "APP_Conexao": "WI-FI", "APP_NotificacaoVisitante": "SIM", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "BRANCO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "-", "Abertura_PINUnico": "-", "Abertura_ReconhecimentoFacial": "SIM", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "SIM", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "TOKEN", "AberturaInterna_Acionamento": "BOTAO ALCA INDUCAO", "AberturaInterna_ModoDefesa": "SIM", "Capacidade_AdminMaster": "2", "Capacidade_BiometriaDigital": "99", "Capacidade_BiometriaFacial": "50", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "20", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM SIM", "Indicador_SistemaBloqueado": "SIM", "Indicador_StatusFechadura": "SIM", "Video_Tela": "IPS 4\" SIM", "Video_ModoInatividade": "SIM", "Video_Resolucao": "2.0 MP", "Video_PorteiroRemoto": "AUDIO/VIDEO", "Sensores_VigilanciaExterna": "3 METROS", "Sensores_DeteccaoPessoas": "SIM", "Sensores_Infravermelho": "SIM", "Alimentacao_Tipo": "BATERIA DE LITHIUM", "Alimentacao_Capacidade": "5000MAH", "Alimentacao_Autonomia": "3 MESES", "Alimentacao_FonteEmergencial": "USB-C", "Material_Composicao": "LIGA DE ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "ESCOVADO", "Aplicacao_EspessuraPadrao": "38-60MM", "Aplicacao_EspessuraEstendida": "60-120MM", "Fechadura_Mortise": "AUTOMATICO - CLASSE C", "Fechadura_Medidas": "18 X 10 X 2", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM SIM", "Tecnicas_PesoConteudo": "4,4", "Tecnicas_PesoEmbalagem": "5.4", "Tecnicas_EmbalagemCM": "50x24x16CM", "Tecnicas_ParteExternaCM": "42,1x5.7x7.7CM", "Tecnicas_ParteInternaCM": "42,1 X 6,7 X 7,9CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "9300": { "Modelo": "9300-5HBGS", "Link": "https://homexbr.com.br/fechadura-digital-philips-9300-push-pull-wifi-biometria-e-cartao-rfid/", "EAN": "6.971.318.501.661", "Fornecedor": "PHILIPS EASY KEY", "APP_Conexao": "BLUETOOTH WI-FI (Acompanha Gateway)", "APP_NotificacaoVisitante": "-", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "BRANCO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "SIM", "Abertura_PINUnico": "SIM", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "SIM", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "SIM", "AberturaInterna_Acionamento": "BOTAO ALCA INDUCAO", "AberturaInterna_ModoDefesa": "SIM", "Capacidade_AdminMaster": "1", "Capacidade_BiometriaDigital": "100", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "10", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM", "Campainha_Integrada": "NAO", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM SIM", "Indicador_SistemaBloqueado": "SIM", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "SIM", "Alimentacao_Tipo": "4 PIHAS AA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "10 MESES", "Alimentacao_FonteEmergencial": "MICRO USB 5V", "Material_Composicao": "LIGA DE ALUMINIO /ZINCO", "Material_Cor": "PRETO", "Material_Acabamento": "VIDRO TEMPERADO", "Aplicacao_EspessuraPadrao": "38-60MM", "Aplicacao_EspessuraEstendida": "60-120MM", "Fechadura_Mortise": "AUTOMATICO- CLASSE C", "Fechadura_Medidas": "18 X 10 X 2", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM SIM", "Tecnicas_PesoConteudo": "4.9", "Tecnicas_PesoEmbalagem": "6,0", "Tecnicas_EmbalagemCM": "15x24x48CM", "Tecnicas_ParteExternaCM": "42.24 X 7,56 X 5,27CM", "Tecnicas_ParteInternaCM": "42.18 X 7,80 X 5,27CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "ALPHA": { "Modelo": "ALPHA-5HB", "Link": "https://homexbr.com.br/2fechadura-digital-philips-9300-push-pull-wifi-biometria-e-cartao-rfid-650/", "EAN": "6.971.318.500.725", "Fornecedor": "PHILIPS EASY KEY", "APP_Conexao": "BLUETOOTH (WI-FI opcional via Gateway)", "APP_NotificacaoVisitante": "-", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "BRANCO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "SIM", "Abertura_PINUnico": "SIM", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "SIM", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "SIM", "AberturaInterna_Acionamento": "BOTAO PUSH PULL", "AberturaInterna_ModoDefesa": "SIM", "Capacidade_AdminMaster": "1", "Capacidade_BiometriaDigital": "100", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "20", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM", "Campainha_Integrada": "NAO", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM SIM", "Indicador_SistemaBloqueado": "SIM", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "-", "Alimentacao_Tipo": "4 A 8 PIHAS AA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "10 MESES", "Alimentacao_FonteEmergencial": "MICRO USB-5V", "Material_Composicao": "LIGA DE ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "ESCOVADO", "Aplicacao_EspessuraPadrao": "38-60MM", "Aplicacao_EspessuraEstendida": "60-120MM", "Fechadura_Mortise": "AUTOMATICO- CLASSE C", "Fechadura_Medidas": "18 X 10 X 2", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM SIM", "Tecnicas_PesoConteudo": "4,2", "Tecnicas_PesoEmbalagem": "5,3", "Tecnicas_EmbalagemCM": "34 X 13 X 49CM", "Tecnicas_ParteExternaCM": "38,78 X 7,81 X 6,32CM", "Tecnicas_ParteInternaCM": "38,78 X 7,81 X 7,24CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "ALPHA VP": { "Modelo": "ALPHA-VP-SHWS", "Link": "https://homexbr.com.br/fechadura-inteligente-alpha-vp-5hws/", "EAN": "6.971.318.504.150", "Fornecedor": "PHILIPS EASY KEY PLUS", "APP_Conexao": "WI-FI", "APP_NotificacaoVisitante": "SIM", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "BRANCO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "-", "Abertura_PINUnico": "-", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "SIM", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "TOKEN", "AberturaInterna_Acionamento": "BOTAO ALCA INDUCAO", "AberturaInterna_ModoDefesa": "SIM", "Capacidade_AdminMaster": "1", "Capacidade_BiometriaDigital": "99", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "20", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM SIM", "Indicador_SistemaBloqueado": "SIM", "Indicador_StatusFechadura": "SIM", "Video_Tela": "IPS 4\" SIM", "Video_ModoInatividade": "SIM", "Video_Resolucao": "2 MP", "Video_PorteiroRemoto": "AUDIO/VIDEO", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "SIM", "Sensores_Infravermelho": "SIM", "Alimentacao_Tipo": "BATERIA DE LITHIUM", "Alimentacao_Capacidade": "5000MAH", "Alimentacao_Autonomia": "3 MESES", "Alimentacao_FonteEmergencial": "USB-C-5V", "Material_Composicao": "LIGA DE ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "ESCOVADO", "Aplicacao_EspessuraPadrao": "38-50MM", "Aplicacao_EspessuraEstendida": "50-90MM", "Fechadura_Mortise": "AUTOMATICO - CLASSE C", "Fechadura_Medidas": "18 X 10 X 2", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM SIM", "Tecnicas_PesoConteudo": "4,5", "Tecnicas_PesoEmbalagem": "5.5", "Tecnicas_EmbalagemCM": "17 X 24,5 X 50CM", "Tecnicas_ParteExternaCM": "40,9 X 6,8 X 7,8CM", "Tecnicas_ParteInternaCM": "42,1 X 7,9 X 6,7CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "303": { "Modelo": "DDL303-VP-SHWS", "Link": "https://homexbr.com.br/fechadura-philips-easykey-303-vp/", "EAN": "6.971.318.504.273", "Fornecedor": "SMART LIFE OU TUYA", "APP_Conexao": "WI-FI", "APP_NotificacaoVisitante": "SIM", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "PRETO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "-", "Abertura_PINUnico": "-", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "-", "Geral_ModoPassagemLivre": "-", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "SIM", "AberturaInterna_Acionamento": "BOTAO PUSH PULL", "AberturaInterna_ModoDefesa": "-", "Capacidade_AdminMaster": "9", "Capacidade_BiometriaDigital": "100", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "100", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "OF SIM", "Alarmes_Idiomas": "ING/CHI/ESP/ARABE", "Alarmes_StatusPorta": "Light", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM", "Indicador_SistemaBloqueado": "-", "Indicador_StatusFechadura": "SIM", "Video_Tela": "IPS 3,5\" SIM", "Video_ModoInatividade": "SIM", "Video_Resolucao": "1,2 MP", "Video_PorteiroRemoto": "SIM", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "-", "Alimentacao_Tipo": "BATERIA DE LITHIUM", "Alimentacao_Capacidade": "4000MAH", "Alimentacao_Autonomia": "3 MESES", "Alimentacao_FonteEmergencial": "USB-C", "Material_Composicao": "LIGA DE ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "ESCOVADO", "Aplicacao_EspessuraPadrao": "38-60MM", "Aplicacao_EspessuraEstendida": "60-120MM", "Fechadura_Mortise": "MECANICO - CLASSE C", "Fechadura_Medidas": "18 X 10 X 2", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM", "Tecnicas_PesoConteudo": "4,8", "Tecnicas_PesoEmbalagem": "5.8", "Tecnicas_EmbalagemCM": "50x24.5x16,5CM", "Tecnicas_ParteExternaCM": "42,2 X 5,8 X 8,1CM", "Tecnicas_ParteInternaCM": "42,2 X 7.4 X 8,3CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "801": { "Modelo": "801-5HBS(E)", "Link": "https://www.philips.com.br/c-p/DDL801LAGKB_00/fechadura-inteligente-de-empurrar-puxar-serie-8000", "EAN": "6.971.318.505.003", "Fornecedor": "PHILIPS HOME ACCESS", "APP_Conexao": "BLUETOOTH WI-FI (ACOMPANHA GATEWAY)", "APP_NotificacaoVisitante": "SIM", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "BRANCO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "SIM", "Abertura_PINUnico": "SIM", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "NAO", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "SIM", "AberturaInterna_Acionamento": "BOTAO/MACANETA", "AberturaInterna_ModoDefesa": "SIM", "Capacidade_AdminMaster": "1", "Capacidade_BiometriaDigital": "100", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "20", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES PORTUGUES", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM SIM", "Indicador_SistemaBloqueado": "SIM", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "SIM", "Alimentacao_Tipo": "8 PIHAS AA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "10 MESES", "Alimentacao_FonteEmergencial": "MICRO USB-5V", "Material_Composicao": "LIGA ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "VIDRO TEMPERADO/PINTADO", "Aplicacao_EspessuraPadrao": "38-60MM", "Aplicacao_EspessuraEstendida": "-", "Fechadura_Mortise": "AUTOMATICO - CLASSE C", "Fechadura_Medidas": "18 X 10 X 2,5", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM SIM", "Tecnicas_PesoConteudo": "4,2", "Tecnicas_PesoEmbalagem": "5,3", "Tecnicas_EmbalagemCM": "50 X 25 X 17CM", "Tecnicas_ParteExternaCM": "40 X 7 X 2,5CM", "Tecnicas_ParteInternaCM": "40 X 7 X 3CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "610": { "Modelo": "610-5HBS(E)", "Link": "https://www.philips.com.br/c-p/DDL610LKCKB_00/fechadura-inteligente-serie-6000", "EAN": "6.971.318.504.884", "Fornecedor": "PHILIPS HOME ACCESS", "APP_Conexao": "BLUETOOTH WI-FI (ACOMPANHA GATEWAY) ALEXA", "APP_NotificacaoVisitante": "SIM", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "BRANCO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "SIM", "Abertura_PINUnico": "SIM", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "NAO", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "SIM", "AberturaInterna_Acionamento": "BOTAO/ALCA INDICAO", "AberturaInterna_ModoDefesa": "SIM", "Capacidade_AdminMaster": "-", "Capacidade_BiometriaDigital": "100", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "20", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES PORTUGUES", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM SIM", "Indicador_SistemaBloqueado": "SIM", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "-", "Alimentacao_Tipo": "8 PIHAS AA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "10 MESES", "Alimentacao_FonteEmergencial": "MICRO USB 5V", "Material_Composicao": "LIGA ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "VIDRO TEMPERADO/PINTADO", "Aplicacao_EspessuraPadrao": "38-60MM", "Aplicacao_EspessuraEstendida": "-", "Fechadura_Mortise": "MANUAL-CLASSE C", "Fechadura_Medidas": "18 X 10 X 2.5", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM SIM", "Tecnicas_PesoConteudo": "3,5", "Tecnicas_PesoEmbalagem": "5,0", "Tecnicas_EmbalagemCM": "17 X 27 X 48CM", "Tecnicas_ParteExternaCM": "36 X 7 X 2,5CM", "Tecnicas_ParteInternaCM": "36 X.7 X 3CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "608": { "Modelo": "DDL608-5HWS", "Link": "https://homexbr.com.br/philips-easykey-608/", "EAN": "6.971.318.504.914", "Fornecedor": "SMART LIFE OU TUYA", "APP_Conexao": "WI-FI", "APP_NotificacaoVisitante": "-", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "PRETO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "-", "Abertura_PINUnico": "-", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "-", "Geral_ModoPassagemLivre": "SIM", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "TOKEN", "AberturaInterna_Acionamento": "MACANETA", "AberturaInterna_ModoDefesa": "-", "Capacidade_AdminMaster": "10", "Capacidade_BiometriaDigital": "100", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "100", "Alarmes_AntiDesmontagem": "-", "Alarmes_BateriaFraca_Campainha": "SIM", "Campainha_Integrada": "NAO", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "-", "Indicador_SistemaBloqueado": "-", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "-", "Alimentacao_Tipo": "4 PILHAS AAA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "10 MESES", "Alimentacao_FonteEmergencial": "USB-C", "Material_Composicao": "LIGA DE ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "PINTADO", "Aplicacao_EspessuraPadrao": "35-60MM", "Aplicacao_EspessuraEstendida": "CONSULTA", "Fechadura_Mortise": "MECANICO - CLASSE C", "Fechadura_Medidas": "20 X 5 X 2", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM", "Tecnicas_PesoConteudo": "1,677", "Tecnicas_PesoEmbalagem": "2.348", "Tecnicas_EmbalagemCM": "42,2 X 30 X 6,5CM", "Tecnicas_ParteExternaCM": "32,4 X 7,2 X 14.JCM", "Tecnicas_ParteInternaCM": "32,4 X 7,2 X 14,1CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-10 A +55°C", "Tecnicas_ProtecaoIP65": "SIM", "Tecnicas_Garantia": "2 ANOS" },
+            "5100": { "Modelo": "5100-6HBS", "Link": "https://homexbr.com.br/fechadura-philips-easykey-5100/", "EAN": "6.971.318.502.798", "Fornecedor": "PHILIPS EASY KEY", "APP_Conexao": "BLUETOOTH (WIFI -opcional via Gateway)", "APP_NotificacaoVisitante": "-", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "PRETO", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "SIM", "Abertura_PINUnico": "SIM", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "SIM", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "-", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "SIM", "AberturaInterna_Acionamento": "BOTAO", "AberturaInterna_ModoDefesa": "SIM", "Capacidade_AdminMaster": "1", "Capacidade_BiometriaDigital": "100", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "100", "Capacidade_PIN": "10", "Alarmes_AntiDesmontagem": "SIM", "Alarmes_BateriaFraca_Campainha": "SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "INGLES/CHINES", "Alarmes_StatusPorta": "-", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM SIM", "Indicador_SistemaBloqueado": "SIM", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "-", "Alimentacao_Tipo": "4 PIHAS AA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "10 MESES", "Alimentacao_FonteEmergencial": "MICRO USB SV", "Material_Composicao": "LIGA DE ZINCO", "Material_Cor": "PRETO", "Material_Acabamento": "ESCOVADO", "Aplicacao_EspessuraPadrao": "30-50MM", "Aplicacao_EspessuraEstendida": "50-90MM", "Fechadura_Mortise": "FECHADURA SOBREPOR", "Fechadura_Medidas": "-", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM SIM", "Tecnicas_PesoConteudo": "1,6", "Tecnicas_PesoEmbalagem": "1,9", "Tecnicas_EmbalagemCM": "9,5 X 24 X 27CM", "Tecnicas_ParteExternaCM": "17,2 X 7,0 X 0,13CM.", "Tecnicas_ParteInternaCM": "20,2 x 7,57 X 4,76CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-20 A +60°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "210": { "Modelo": "DDL210S-13H", "Link": "https://homexbr.com.br/fechadura-philips-easykey-210x-13h/", "EAN": "6.971.318.504.662", "Fornecedor": "PHILIPS", "APP_Conexao": "-", "APP_NotificacaoVisitante": "-", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "-", "Abertura_PIN": "SIM", "Abertura_PINOculto": "SIM", "Abertura_PINRecorrente": "SIM", "Abertura_PINUnico": "SIM", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "-", "Abertura_VerificacaoDupla": "-", "Geral_ModoPrivacidade": "SIM", "Geral_ModoPassagemLivre": "-", "Geral_FuncaoNaoPerturbe": "SIM", "Geral_ViaAPP": "TOKEN", "AberturaInterna_Acionamento": "BOTAO", "AberturaInterna_ModoDefesa": "-", "Capacidade_AdminMaster": "1", "Capacidade_BiometriaDigital": "50", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "-", "Capacidade_PIN": "20", "Alarmes_AntiDesmontagem": "-", "Alarmes_BateriaFraca_Campainha": "SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "SIM", "Alarmes_Idiomas": "ING/FRA/ESP", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "SIM", "Indicador_SistemaBloqueado": "-", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "-", "Alimentacao_Tipo": "4 PILHAS AA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "12 MESES", "Alimentacao_FonteEmergencial": "USB-C 5V", "Material_Composicao": "LIGA DE ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "BRILHANTE", "Aplicacao_EspessuraPadrao": "35-50MM", "Aplicacao_EspessuraEstendida": "-", "Fechadura_Mortise": "DEADBOLT (PADRAO EUA)", "Fechadura_Medidas": "-", "Fechadura_LadoAbertura": "REVESIVEL", "Fechadura_TravamentoAutoManual": "SIM", "Tecnicas_PesoConteudo": "0,86", "Tecnicas_PesoEmbalagem": "1,27", "Tecnicas_EmbalagemCM": "21 X 6 X 9CM", "Tecnicas_ParteExternaCM": "12,3 X 1,6 X 6,3CM", "Tecnicas_ParteInternaCM": "16,6 X 2,9 X 6,8CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-35 A +66°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" },
+            "101": { "Modelo": "DDL101-3HBS", "Link": "https://homexbr.com.br/philips-easykey-101/", "EAN": "6.971.318.504.938", "Fornecedor": "SMART LIFE OU TUYA", "APP_Conexao": "BLUETOOTH", "APP_NotificacaoVisitante": "-", "Abertura_BiometriaDigital": "SIM", "Abertura_CartaoTAG": "-", "Abertura_PIN": "-", "Abertura_PINOculto": "-", "Abertura_PINRecorrente": "-", "Abertura_PINUnico": "-", "Abertura_ReconhecimentoFacial": "-", "Abertura_ChaveMecanica": "SIM", "Abertura_VerificacaoDupla": "-", "Geral_ModoPrivacidade": "-", "Geral_ModoPassagemLivre": "SIM", "Geral_FuncaoNaoPerturbe": "-", "Geral_ViaAPP": "SIM", "AberturaInterna_Acionamento": "MACANETA", "AberturaInterna_ModoDefesa": "-", "Capacidade_AdminMaster": "1", "Capacidade_BiometriaDigital": "44", "Capacidade_BiometriaFacial": "-", "Capacidade_CartaoTAG": "-", "Capacidade_PIN": "-", "Alarmes_AntiDesmontagem": "-", "Alarmes_BateriaFraca_Campainha": "SIM", "Campainha_Integrada": "SIM", "Alarmes_GuiaVoz": "-", "Alarmes_Idiomas": "-", "Alarmes_StatusPorta": "SIM", "Alarmes_TravamentoAnormal_ModoSilencioso": "-", "Indicador_SistemaBloqueado": "-", "Indicador_StatusFechadura": "SIM", "Video_Tela": "-", "Video_ModoInatividade": "-", "Video_Resolucao": "-", "Video_PorteiroRemoto": "-", "Sensores_VigilanciaExterna": "-", "Sensores_DeteccaoPessoas": "-", "Sensores_Infravermelho": "-", "Alimentacao_Tipo": "4 PILHAS AAA", "Alimentacao_Capacidade": "4.5-6V", "Alimentacao_Autonomia": "10 MESES", "Alimentacao_FonteEmergencial": "USB-C", "Material_Composicao": "LIGA DE ALUMINIO", "Material_Cor": "PRETO", "Material_Acabamento": "PINTADO", "Aplicacao_EspessuraPadrao": "35-60MM", "Aplicacao_EspessuraEstendida": "-", "Fechadura_Mortise": "MECANICO- CLASSE A", "Fechadura_Medidas": "-", "Fechadura_LadoAbertura": "REVERSIVEL", "Fechadura_TravamentoAutoManual": "SIM", "Tecnicas_PesoConteudo": "1,536", "Tecnicas_PesoEmbalagem": "1,952", "Tecnicas_EmbalagemCM": "29.5 X 20.5 X 10.5CM", "Tecnicas_ParteExternaCM": "5,77 X 6,7 X 16.58CM", "Tecnicas_ParteInternaCM": "5,73 X 6,7 X 16,59CM", "Tecnicas_Humidade": "15%RH-93%RH", "Tecnicas_Temperatura": "DE-10 A +55°C", "Tecnicas_ProtecaoIP65": "-", "Tecnicas_Garantia": "2 ANOS" }
         };
 
-        const featuresToCompare = {
-            "Modelo": "Modelo", "Aplicativo": "Aplicativo (App)", "Conexão": "Conexão", "Vídeo Porteiro": "Função Vídeo Porteiro", "Notificação de Visitante": "Notificação de Visitante", "Campainha": "Campainha Integrada", "Idiomas": "Idiomas do Guia de Voz", "Biometria Facial": "Biometria Facial (Capacidade)", "Detecção Automática de Pessoas": "Detecção Automática de Pessoas", "Biometria Digital": "Biometria Digital (Capacidade)", "Cartão TAG": "Cartão TAG (Capacidade)", "PIN (senhas)": "PIN / Senhas (Capacidade)", "PIN Oculto": "PIN Oculto (Senha Falsa)", "PIN Único": "PIN de Uso Único", "PIN Recorrente": "PIN Recorrente (Agendado)", "Chave Mecânica": "Chave Mecânica (Contingência)", "Abertura via APP": "Abertura Remota via App", "Verificação Dupla": "Verificação Dupla (2 Fatores)", "Acionamento Interno": "Abertura Interna - Acionamento", "Modo Passagem Livre": "Modo Passagem Livre", "Função Não Perturbe": "Função Não Perturbe", "Travamento Automático": "Travamento Automático", "Maquinário": "Maquinário (Mortise)", "Alimentação": "Alimentação Principal", "Autonomia Media": "Autonomia Média", "Fonte Emergencial": "Fonte de Emergência", "Espessura da Porta": "Espessura da Porta (mm)", "Proteção IP65": "Proteção IP65 (Água/Pó)", "Acabamento": "Acabamento", "Peso com Embalagem (Kg)": "Peso com Embalagem (Kg)", "Embalagem (A x L x P) cm": "Embalagem (A x L x P) cm", "Garantia": "Garantia"
+        // --- Definição das Características para a Tabela ---
+        const completeFeatures = {
+            "CAT_IDENTIFICACAO": "IDENTIFICACAO", "Modelo": "Modelo", "EAN": "EAN", "Fornecedor": "Fornecedor (APP)", "CAT_APP": "APP", "APP_Conexao": "Conexao", "APP_NotificacaoVisitante": "Notificacao de chegada de visitante", "CAT_ABERTURA": "ABERTURA EXTERNA", "Abertura_BiometriaDigital": "Biometria Digital", "Abertura_CartaoTAG": "Cartao TAG", "Abertura_PIN": "PIN", "Abertura_PINOculto": "PIN Oculto", "Abertura_PINRecorrente": "PIN Recorrente", "Abertura_PINUnico": "PIN Unico", "Abertura_ReconhecimentoFacial": "Reconhecimento Facial", "Abertura_ChaveMecanica": "Chave Mecanica", "Abertura_VerificacaoDupla": "Verificacao Dupla", "CAT_GERAL": "GERAL", "Geral_ModoPrivacidade": "Modo privacidade (somente master abre)", "Geral_ModoPassagemLivre": "Modo Passagem Livre", "Geral_FuncaoNaoPerturbe": "Funcao Nao Perturbe", "Geral_ViaAPP": "Via APP", "CAT_ABERTURA_INTERNA": "ABERTURA INTERNA", "AberturaInterna_Acionamento": "Acionamento", "AberturaInterna_ModoDefesa": "Modo de defesa (alarme)", "CAT_CAPACIDADE": "CAPACIDADE DE IDENTIFICACOES", "Capacidade_AdminMaster": "Administrador Master", "Capacidade_BiometriaDigital": "Biometria Digital (Capacidade)", "Capacidade_BiometriaFacial": "Biometria Facial (Capacidade)", "Capacidade_CartaoTAG": "Cartao TAG (Capacidade)", "Capacidade_PIN": "PIN / Senhas (Capacidade)", "CAT_ALARMES": "ALARMES SONOROS", "Alarmes_AntiDesmontagem": "Anti desmontagem", "Alarmes_BateriaFraca_Campainha": "Bateria fraca / Campainha", "Alarmes_GuiaVoz": "Guia de Voz", "Alarmes_Idiomas": "Idiomas", "Alarmes_StatusPorta": "Status de porta (Aberta/Fechada)", "Alarmes_TravamentoAnormal_ModoSilencioso": "Travamento anormal / Modo Silencioso", "CAT_INDICADOR": "INDICADOR VISUAL", "Indicador_SistemaBloqueado": "Sistema Bloqueado", "Indicador_StatusFechadura": "Status da Fechadura", "CAT_VIDEO": "VIDEO CAMERA", "Video_Tela": "Tamanho / Liga/Desliga tela interna", "Video_ModoInatividade": "Modo de Inatividade", "Video_Resolucao": "Camera Resolucao", "Video_PorteiroRemoto": "Funcao Video Porteiro", "CAT_SENSORES": "SENSORES", "Sensores_VigilanciaExterna": "Vigilancia Externa", "Sensores_DeteccaoPessoas": "Deteccao Automatica de Pessoas", "Sensores_Infravermelho": "Infravermelho (alca interna)", "CAT_ALIMENTACAO": "ALIMENTACAO", "Alimentacao_Tipo": "Alimentacao Principal", "Alimentacao_Capacidade": "Capacidade/Potencia", "Alimentacao_Autonomia": "Autonomia Media", "Alimentacao_FonteEmergencial": "Fonte Emergencial", "CAT_MATERIAL": "MATERIAL", "Material_Composicao": "Composicao", "Material_Cor": "Cor", "Material_Acabamento": "Acabamento", "CAT_APLICACAO": "APLICACAO PORTAS", "Aplicacao_EspessuraPadrao": "Espessura da Porta (mm)", "Aplicacao_EspessuraEstendida": "Espessura Estendida com kit opcional", "CAT_FECHADURA": "FECHADURA", "Fechadura_Mortise": "Mortise (Maquinario)", "Fechadura_Medidas": "Medidas", "Fechadura_LadoAbertura": "Lado de Abertura (Direita/Esquerda)", "Fechadura_TravamentoAutoManual": "Travamento Automatico / Manual", "CAT_TECNICAS": "CARACTERISTICAS TECNICAS", "Tecnicas_PesoConteudo": "Peso Conteudo (Kg)", "Tecnicas_PesoEmbalagem": "Peso com Embalagem (Kg)", "Tecnicas_EmbalagemCM": "Embalagem (AxLxP) cm", "Tecnicas_ParteExternaCM": "Parte Externa (AxLxP) cm", "Tecnicas_ParteInternaCM": "Parte Interna (AxLxP) cm", "Tecnicas_Humidade": "Humidade Suportada", "Tecnicas_Temperatura": "Temperatura Externa Permitida", "Tecnicas_ProtecaoIP65": "Protecao IP65 (Agua/Po)", "Tecnicas_Garantia": "Garantia", "Link": "Saiba Mais"
         };
         
+        const simplifiedFeatures = {
+            "Modelo": "Modelo", "APP_Conexao": "Conexao", "Capacidade_PIN": "PIN / Senhas (Capacidade)", "Capacidade_BiometriaDigital": "Biometria Digital (Capacidade)", "Capacidade_BiometriaFacial": "Biometria Facial (Capacidade)", "Capacidade_CartaoTAG": "Cartao TAG (Capacidade)", "Campainha_Integrada": "Campainha Integrada", "APP_NotificacaoVisitante": "Notificacao de Visitante", "Video_Resolucao": "Camera Resolucao", "Video_PorteiroRemoto": "Funcao Video Porteiro", "Sensores_DeteccaoPessoas": "Deteccao Automatica de Pessoas", "Tecnicas_ProtecaoIP65": "Protecao IP65 (Agua/Po)", "Alimentacao_Tipo": "Alimentacao Principal", "Aplicacao_EspessuraPadrao": "Espessura da Porta (mm)", "Tecnicas_Garantia": "Garantia", "Link": "Saiba Mais"
+        };
+
+        // --- Elementos do DOM ---
         const lockOptions = document.querySelectorAll('.lock-option');
         const resultContainer = document.getElementById('comparison-result');
+        const generateSummaryBtn = document.getElementById('generate-summary-btn');
+        const installationSuggestionBtn = document.getElementById('installation-suggestion-btn');
+        const summaryModal = document.getElementById('summary-modal');
+        const installationModal = document.getElementById('installation-modal');
+        const closeButtons = document.querySelectorAll('.close-btn');
+        const geminiSummaryResult = document.getElementById('gemini-summary-result');
+        const geminiInstallationResult = document.getElementById('gemini-installation-result');
+        const btnCompleto = document.getElementById('btn-completo');
+        const btnSimplificado = document.getElementById('btn-simplificado');
+        let currentView = 'simplificado';
 
+        // --- Funções Principais ---
+        
+        // Atualiza a tabela de comparação na UI
         function updateTable() {
             const selectedLocks = Array.from(document.querySelectorAll('.lock-option.selected')).map(el => el.dataset.lockKey);
+            
+            btnCompleto.classList.toggle('active', currentView === 'completo');
+            btnSimplificado.classList.toggle('active', currentView === 'simplificado');
 
             if (selectedLocks.length === 0) {
                 resultContainer.innerHTML = '';
                 return;
             }
-
-            let tableHTML = '<table id="comparison-table"><thead><tr><th>Característica</th>';
-            selectedLocks.forEach(key => {
-                tableHTML += `<th>${key}</th>`;
-            });
+            
+            const features = currentView === 'completo' ? completeFeatures : simplifiedFeatures;
+            
+            let tableHTML = '<table id="comparison-table"><thead><tr><th class="feature-column">Caracteristica</th>';
+            selectedLocks.forEach(key => { tableHTML += `<th>${key}</th>`; });
             tableHTML += '</tr></thead><tbody>';
 
-            Object.keys(featuresToCompare).forEach(featureKey => {
-                tableHTML += `<tr><td class="feature-column">${featuresToCompare[featureKey]}</td>`;
-                selectedLocks.forEach(lockKey => {
-                    const value = lockData[lockKey][featureKey] || '-';
-                    tableHTML += `<td>${value}</td>`;
-                });
-                tableHTML += '</tr>';
-            });
+            Object.keys(features).forEach(featureKey => {
+                const isCategoryHeader = featureKey.startsWith('CAT_');
+                if (isCategoryHeader && currentView === 'completo') {
+                    tableHTML += `<tr class="category-row"><td colspan="${selectedLocks.length + 1}" class="category-header">${features[featureKey]}</td></tr>`;
+                } else if (!isCategoryHeader) {
+                    tableHTML += `<tr><td class="feature-column">${features[featureKey]}</td>`;
+                    selectedLocks.forEach(lockKey => {
+                        const value = lockData[lockKey]?.[featureKey] || '-';
+                        let cellContent;
 
+                        if (featureKey === 'Link') {
+                            cellContent = `<a href="${value}" target="_blank" rel="noopener noreferrer" class="product-link">Ver Produto</a>`;
+                        } else {
+                            let processedValue = value;
+                            if (processedValue.trim() === '-') {
+                                processedValue = 'NÃO';
+                            }
+                            
+                            if (processedValue.trim().toUpperCase() === 'SIM') {
+                                cellContent = '<span class="icon-check">✓</span>';
+                            } else if (processedValue.trim().toUpperCase() === 'NÃO' || processedValue.trim().toUpperCase() === 'NAO') {
+                                cellContent = '<span class="icon-cross">✗</span>';
+                            } else {
+                                cellContent = processedValue;
+                            }
+                        }
+                        tableHTML += `<td data-label="${lockKey}">${cellContent}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                }
+            });
             tableHTML += '</tbody></table>';
             resultContainer.innerHTML = tableHTML;
         }
 
+        // Controla a visibilidade dos botões da IA
+        function toggleGeminiButtons() {
+            const selectedCount = document.querySelectorAll('.lock-option.selected').length;
+            generateSummaryBtn.style.display = (selectedCount >= 2) ? 'inline-block' : 'none';
+            installationSuggestionBtn.style.display = (selectedCount === 1) ? 'inline-block' : 'none';
+        }
+
+        // --- Funções da API Gemini ---
+
+        // Função genérica para chamar a API
+        async function callGemini(prompt, resultContainer, button) {
+            button.disabled = true;
+            resultContainer.innerHTML = '<div class="loader"></div>';
+            
+            try {
+                const apiKey = "AIzaSyDD6eb3WKzLQ1_iWo0Jdfm2ismDwPiw6ss";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }]
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    throw new Error(`Erro na API: ${response.status} ${response.statusText}. Detalhes: ${errorBody.error.message}`);
+                }
+
+                const result = await response.json();
+                
+                const candidate = result?.candidates?.[0];
+                const text = candidate?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    resultContainer.innerHTML = marked.parse(text);
+                } else {
+                    throw new Error("A IA retornou uma resposta vazia ou em formato inesperado.");
+                }
+
+            } catch (error) {
+                console.error("Erro ao chamar a API Gemini:", error);
+                resultContainer.innerHTML = `<div class="error-message"><strong>Ocorreu um erro.</strong><p>${error.message}</p><p>Por favor, tente novamente.</p></div>`;
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        // Gera o resumo comparativo
+        async function handleGenerateSummary() {
+            const selectedLocksKeys = Array.from(document.querySelectorAll('.lock-option.selected')).map(el => el.dataset.lockKey);
+            const selectedLockData = selectedLocksKeys.map(key => {
+                const data = lockData[key];
+                return {
+                    Modelo: data.Modelo,
+                    Conectividade: data.APP_Conexao,
+                    "Video Porteiro": data.Video_PorteiroRemoto,
+                    "Reconhecimento Facial": data.Abertura_ReconhecimentoFacial,
+                    Alimentacao: data.Alimentacao_Tipo
+                };
+            });
+            
+            const prompt = `
+                Aja como um especialista em segurança residencial. Crie um resumo comparativo em Português (Portugal) para um consumidor indeciso entre as seguintes fechaduras Philips, com base nos dados JSON fornecidos.
+
+                Dados:
+                ${JSON.stringify(selectedLockData, null, 2)}
+
+                Siga estritamente este formato Markdown:
+
+                ### Análise Comparativa
+                Compare os modelos de forma geral.
+
+                #### Pontos Fortes de Cada Modelo
+                * **${selectedLocksKeys[0]}**: Liste 2-3 pontos fortes principais.
+                * **${selectedLocksKeys[1]}**: Liste 2-3 pontos fortes principais.
+                * (Continue para os outros modelos, se houver)
+
+                #### Veredito Final
+                * **Para máxima tecnologia:** Recomende o modelo X e justifique.
+                * **Para melhor custo-benefício:** Recomende o modelo Y e justifique.
+            `;
+            
+            summaryModal.classList.add('visible');
+            await callGemini(prompt, geminiSummaryResult, generateSummaryBtn);
+        }
+
+        // Gera sugestão de instalação
+        async function handleInstallationSuggestion() {
+            const selectedLockKey = document.querySelector('.lock-option.selected').dataset.lockKey;
+            const data = lockData[selectedLockKey];
+            
+            const prompt = `
+                Aja como um instalador de fechaduras profissional. Forneça um guia de instalação simplificado em Português (Portugal) para a fechadura Philips Modelo **${data.Modelo}**.
+
+                Dados relevantes:
+                - Espessura de porta compatível: ${data.Aplicacao_EspessuraPadrao}
+                - Tipo de maquinário: ${data.Fechadura_Mortise}
+
+                Siga estritamente este formato Markdown:
+
+                ### Assistente de Instalação para: ${data.Modelo}
+
+                **Atenção:** Este é um guia rápido. Consulte sempre o manual oficial do fabricante antes de iniciar.
+
+                #### Ferramentas Necessárias
+                * Liste as ferramentas essenciais (ex: Chave Philips, Berbequim, Brocas para madeira, etc.).
+
+                #### Passos Simplificados
+                1.  **Preparação:** Descreva o passo 1.
+                2.  **Marcação:** Descreva o passo 2.
+                3.  **Furação:** Descreva o passo 3.
+                4.  **Instalação do Maquinário:** Descreva o passo 4.
+                5.  **Montagem das Unidades:** Descreva o passo 5.
+                6.  **Teste:** Descreva o passo 6.
+
+                #### Dicas do Profissional
+                * Dê 2 ou 3 dicas importantes para uma instalação bem-sucedida.
+            `;
+
+            installationModal.classList.add('visible');
+            await callGemini(prompt, geminiInstallationResult, installationSuggestionBtn);
+        }
+
+
+        // --- Event Listeners ---
         lockOptions.forEach(option => {
             option.addEventListener('click', function() {
+                const selectedCount = document.querySelectorAll('.lock-option.selected').length;
+                if (selectedCount >= 3 && !this.classList.contains('selected')) {
+                    return; 
+                }
                 this.classList.toggle('selected');
                 updateTable();
+                toggleGeminiButtons();
+            });
+        });
+        
+        btnCompleto.addEventListener('click', () => {
+            currentView = 'completo';
+            updateTable();
+        });
+
+        btnSimplificado.addEventListener('click', () => {
+            currentView = 'simplificado';
+            updateTable();
+        });
+
+        generateSummaryBtn.addEventListener('click', handleGenerateSummary);
+        installationSuggestionBtn.addEventListener('click', handleInstallationSuggestion);
+
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.dataset.modalId;
+                document.getElementById(modalId).classList.remove('visible');
             });
         });
 
+        // --- Inicializacao ---
+        updateTable(); 
     });
     </script>
-
 </body>
 </html>
